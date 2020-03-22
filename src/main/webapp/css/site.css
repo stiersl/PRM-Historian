@@ -1,0 +1,62 @@
+* {
+/* 	border: 1px solid red;  */
+	box-sizing: border-box;
+	font-family: sans-serif, Tahoma, Verdana, Segoe;
+}
+
+html {
+	font-size: 12px;
+	background-color: rgba(192, 192, 192, 0.1);
+}
+
+/* Set padding to keep content from hitting the edges
+.body-content {
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input, select, textarea {
+	max-width: 280px;
+}
+
+.fnt-bold {
+	font-weight: bold;
+	margin: 0;
+}
+
+.inputElement {
+	padding: 0;
+	margin-bottom: 5px;
+}
+
+#sa-image {
+	display: inline;
+	width: 30px;
+	margin-right: 3px;
+	height: auto;
+}
+
+label {
+	display: block;
+}
+
+.form-control {
+	display: inline-block;
+}
+
+.error {
+	color: red
+}
+
+#mainContent{
+	display:flex;
+}
+#variables{
+	width:40%;
+	margin-right:20px;
+}
+#history{
+	width:55%;
+	margin-right:20px;
+}

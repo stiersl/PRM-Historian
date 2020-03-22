@@ -1,0 +1,165 @@
+{
+	"info": {
+		"_postman_id": "5738d408-b5d4-4f43-b78e-f8ab3eed1005",
+		"name": "PRM Variable Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "get All Variables",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/PRMHistorian/api/variables",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"PRMHistorian",
+						"api",
+						"variables"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get a Variable by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/PRMHistorian/api/variables/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"PRMHistorian",
+						"api",
+						"variables",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get variable history ",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Insert a Variable",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "99281f38-328e-4e6a-8db7-b5d06b29a50e",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"let jsonData = pm.response.json();",
+							"pm.variables.set(\"new_varId\", jsonData[\"varId\"]);",
+							"",
+							"pm.test(\"got back the same varName\", function () {",
+							"    pm.expect(jsonData[\"varName\"]).to.eql(\"API Inserted Variable\");",
+							"});",
+							"",
+							"pm.test(\"got back the same desc\", function () {",
+							"    pm.expect(jsonData[\"varDesc\"]).to.eql(\"API Varaible Desc 1\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n        \"varName\": \"API Inserted Variable 2\",\r\n        \"varDesc\": \"API Varaible Desc 2\"\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/PRMHistorian/api/variables/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"PRMHistorian",
+						"api",
+						"variables",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Insert a Variable History",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "99281f38-328e-4e6a-8db7-b5d06b29a50e",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n        \"varId\":2,\r\n    \t\"varValue\":\"1234.56\",\r\n\t\t\"timeStamp\":\"2020-03-19 15:28:05\",\r\n\t\t\"quality\":192\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/PRMHistorian/api/variableHistory",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"PRMHistorian",
+						"api",
+						"variableHistory"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
