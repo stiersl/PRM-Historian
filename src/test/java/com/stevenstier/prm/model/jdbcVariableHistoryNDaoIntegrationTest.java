@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 
@@ -28,11 +29,16 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 	private static final String TEST_VARNAME1 = "Test Var1";
 	private static final Double TEST_VARVALUE1 = 123.45d;
 	private static final LocalDateTime TEST_SAMPLETIME1 = LocalDateTime.of(2020, 2, 13, 15, 56, 12);
+	private static final LocalDateTime TEST_SAMPLETIME_CHECK = LocalDateTime.of(2020, 2, 13, 10, 56, 12);
 	private static final Integer TEST_QUALITY1 = 127;
 	private static final String TEST_VARNAME2 = "Test Var2";
+	private static final String TEST_VARNAME3 = "Test Var3";
+	private static final String TEST_VARNAME4 = "Test Var4"; 
 	
 	private Long testvarId1;
 	private Long testvarId2;
+	private Long testvarId3;
+	private Long testvarId4;
 	/*
 	 * Using this particular implementation of DataSource so that every database
 	 * interaction is part of the same database session and hence the same database
@@ -42,21 +48,31 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 	private JDBCVariableHistoryNDao jdbcVariabeHistoryDao;
 	private JDBCVariableDao jdbcVariableDao;
 	private VariableHistoryN testVariableHistoryN;
-
+	private static ZoneId zone;
 	/*
 	 * Before any tests are run, this method initializes the datasource for testing.
 	 */
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/prm");
-		dataSource.setUsername("postgres");
-		dataSource.setPassword("postgres1");
+dataSource = new SingleConnectionDataSource();
+      
+      String dburl = System.getenv("JDBC_DATABASE_URL");
+      
+      if (dburl != null){
+        dataSource.setUrl(dburl);
+       }
+       else {
+         dataSource.setUrl("jdbc:postgresql://localhost:5432/prm");
+       }
+      dataSource.setUsername("postgres");
+      dataSource.setPassword("postgres1");
 		/*
 		 * The following line disables autocommit for connections returned by this
 		 * DataSource. This allows us to rollback any changes after each test
 		 */
 		dataSource.setAutoCommit(false);
+		zone = ZoneId.of("America/New_York");
 	}
 
 	/*
@@ -94,6 +110,30 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 		while (results.next()) {
 			testvarId2 = results.getLong("varId");
 		}
+		
+		sqlInsert = "INSERT INTO Variable (varName) VALUES(?);";
+
+      jdbcTemplate.update(sqlInsert, TEST_VARNAME3);
+
+      sqlSelect = "SELECT varId FROM variable WHERE varName = ?";
+      results = jdbcTemplate.queryForRowSet(sqlSelect, TEST_VARNAME3);
+
+      while (results.next()) {
+         testvarId3 = results.getLong("varId");
+      }
+      
+      sqlInsert = "INSERT INTO Variable (varName) VALUES(?);";
+
+      jdbcTemplate.update(sqlInsert, TEST_VARNAME4);
+
+      sqlSelect = "SELECT varId FROM variable WHERE varName = ?";
+      results = jdbcTemplate.queryForRowSet(sqlSelect, TEST_VARNAME4);
+
+      while (results.next()) {
+         testvarId4 = results.getLong("varId");
+      }
+      
+      
 		jdbcVariabeHistoryDao = new JDBCVariableHistoryNDao(dataSource);
 		jdbcVariableDao = new JDBCVariableDao(dataSource);
 		testVariableHistoryN = new VariableHistoryN();
@@ -133,11 +173,11 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 		sut = foundVariableHistory.get(0);
 
 		assertEquals(testvarId1, sut.getVarId());
-		assertEquals(TEST_SAMPLETIME1, sut.getSampleTime());
+		assertEquals(TEST_SAMPLETIME_CHECK, sut.getSampleTime());
 		assertEquals(TEST_VARVALUE1, sut.getVarValue());
 		assertEquals(TEST_QUALITY1, sut.getQuality());
 	}
-
+	
 	@Test
 	public void can_create_a_historian_value_and_not_pass_sampletime() {
 		VariableHistoryN sut = new VariableHistoryN();
@@ -165,7 +205,7 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 		sut = foundVariableHistory.get(0);
 
 		assertEquals(testvarId1, sut.getVarId());
-		assertEquals(TEST_SAMPLETIME1, sut.getSampleTime());
+		assertEquals(TEST_SAMPLETIME_CHECK, sut.getSampleTime());
 		assertEquals(TEST_VARVALUE1, sut.getVarValue());
 		assertEquals((Integer) 192, sut.getQuality());
 	}
@@ -174,14 +214,14 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 	public void can_create_variableHistoryN_and_then_read_it_back_via_name() {
 		VariableHistoryN sut = new VariableHistoryN();
 
-		Assert.assertTrue(jdbcVariabeHistoryDao.insertVarHistoryByVarName(TEST_VARNAME1, TEST_SAMPLETIME1.toInstant(ZoneOffset.UTC),
+		Assert.assertTrue(jdbcVariabeHistoryDao.insertVarHistoryByVarName(TEST_VARNAME3, TEST_SAMPLETIME1.toInstant(ZoneOffset.UTC),
 				TEST_VARVALUE1, TEST_QUALITY1));
 
-		List<VariableHistoryN> foundVariableHistory = jdbcVariabeHistoryDao.getAllVarHistoryVarId(testvarId1);
+		List<VariableHistoryN> foundVariableHistory = jdbcVariabeHistoryDao.getAllVarHistoryVarId(testvarId3);
 		sut = foundVariableHistory.get(0);
 
-		assertEquals(testvarId1, sut.getVarId());
-		assertEquals(TEST_SAMPLETIME1, sut.getSampleTime());
+		assertEquals(testvarId3, sut.getVarId());
+		assertEquals(TEST_SAMPLETIME_CHECK, sut.getSampleTime());
 		assertEquals(TEST_VARVALUE1, sut.getVarValue());
 		assertEquals(TEST_QUALITY1, sut.getQuality());
 	}
@@ -217,15 +257,16 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 	@Test
 	public void can_insert_a_variableHistory_and_then_read_it_back_from_variable_using_ID() {
 		Variable sut = new Variable();
-
+		
+		
 		Assert.assertTrue(jdbcVariabeHistoryDao.insertVarHistoryByVarId(testvarId1, TEST_SAMPLETIME1.toInstant(ZoneOffset.UTC), TEST_VARVALUE1,
 				TEST_QUALITY1));
 
 		sut = jdbcVariableDao.getVariablebyID(testvarId1);
 
 		assertEquals(testvarId1, sut.getVarId());
-		assertEquals(TEST_SAMPLETIME1, sut.getLastSampleTime());
-		assertEquals(TEST_VARVALUE1, sut.getLastValue());
+		assertEquals(TEST_SAMPLETIME_CHECK, sut.getLastSampleTime());
+		assertEquals(TEST_VARVALUE1.toString(), sut.getLastValue());
 		assertEquals(TEST_QUALITY1, sut.getLastQuality());
 	}
 
@@ -239,8 +280,8 @@ public class jdbcVariableHistoryNDaoIntegrationTest {
 		sut = jdbcVariableDao.getVariablebyName(TEST_VARNAME1);
 
 		assertEquals(testvarId1, sut.getVarId());
-		assertEquals(TEST_SAMPLETIME1, sut.getLastSampleTime());
-		assertEquals(TEST_VARVALUE1, sut.getLastValue());
+		assertEquals(TEST_SAMPLETIME_CHECK, sut.getLastSampleTime());
+		assertEquals(TEST_VARVALUE1.toString(), sut.getLastValue());
 		assertEquals(TEST_QUALITY1, sut.getLastQuality());
 	}
 

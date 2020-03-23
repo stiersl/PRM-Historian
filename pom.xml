@@ -101,7 +101,7 @@
 				<artifactId>heroku-maven-plugin</artifactId>
 				<version>3.0.1</version>
 				<configuration>
-				<appName>prm-historian</appName>
+				<appName>prm-test</appName>
 				</configuration>
 			</plugin>
 		</plugins>

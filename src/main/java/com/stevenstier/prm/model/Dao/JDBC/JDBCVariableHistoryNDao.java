@@ -137,7 +137,7 @@ public class JDBCVariableHistoryNDao implements VariableHistoryNDao{
 			if(results.next()) {
 				varhistoryid = results.getLong("varHistoryId");
 				// update the row in variable table
-				String sqlUpdate = "UPDATE Variable SET lastValueN = ?, lastSampleTime = ?, lastQuality = ? "
+				String sqlUpdate = "UPDATE Variable SET lastValue = ?, lastSampleTime = ?, lastQuality = ? "
 						+ " where VarName = ?";
 				jdbcTemplate.update(sqlUpdate, String.valueOf(varValue), odt, quality, varName);
 			    result = true;

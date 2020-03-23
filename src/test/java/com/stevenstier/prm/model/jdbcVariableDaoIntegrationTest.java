@@ -53,9 +53,17 @@ public class jdbcVariableDaoIntegrationTest {
 	@BeforeClass
 	public static void setupDataSource() {
 		dataSource = new SingleConnectionDataSource();
-		dataSource.setUrl("jdbc:postgresql://localhost:5432/prm");
+		
+		String dburl = System.getenv("JDBC_DATABASE_URL");
+      
+      if (dburl != null){
+        dataSource.setUrl(dburl);
+       }
+       else {
+         dataSource.setUrl("jdbc:postgresql://localhost:5432/prm");
+       }
 		dataSource.setUsername("postgres");
-		dataSource.setPassword(System.getenv("DB_PASSWORD"));
+		dataSource.setPassword("postgres1");
 		/*
 		 * The following line disables autocommit for connections returned by this
 		 * DataSource. This allows us to rollback any changes after each test
@@ -206,10 +214,6 @@ public class jdbcVariableDaoIntegrationTest {
 		assertEquals(TEST_MINSCALE, sut.getMinScale());
 		assertEquals(TEST_SNAPSHOTRATE, sut.getSnapshotRate());
 		assertEquals(TEST_SNAPSHOTTRESHOLD, sut.getSnapshotTreshold());
-		assertEquals(TEST_LASTVALUE, sut.getLastValue());
-		assertEquals(TEST_LASTSAMPLETIME, sut.getLastSampleTime());
-		assertEquals(TEST_LASTQUALITY, sut.getLastQuality());
-		assertEquals(TEST_ACTIVE, sut.getActive());
 
 	}
 
