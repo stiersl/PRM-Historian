@@ -34,7 +34,7 @@ public class JDBCVariableHistoryNDao implements VariableHistoryNDao{
 		List<VariableHistoryN> allVariableHistory = new ArrayList<>();
 		String sql = "SELECT varHistoryId, varId, sampleTime, varValue, quality "
 				+ " FROM VariableHistoryN"
-				+ " WHERE varId = ?;";
+				+ " WHERE varId = ? ORDER BY SampleTime DESC;";
 	    SqlRowSet results = jdbcTemplate.queryForRowSet(sql,varId);
 	    while(results.next()) {
 	    	VariableHistoryN newItem = createItemFromRow(results);
@@ -49,7 +49,7 @@ public class JDBCVariableHistoryNDao implements VariableHistoryNDao{
 		List<VariableHistoryN> allVariableHistory = new ArrayList<>();
 		String sql = "SELECT  varHistoryId, varId, sampleTime, varValue, quality"
 				+ " FROM VariableHistoryN" 
-				+ " WHERE varId = (SELECT varId from variable where varName = ?);";
+				+ " WHERE varId = (SELECT varId from variable where varName = ?) ORDER BY SampleTime DESC";
 	    SqlRowSet results = jdbcTemplate.queryForRowSet(sql,varName);
 	    while(results.next()) {
 	    	VariableHistoryN newItem = createItemFromRow(results);
@@ -63,7 +63,7 @@ public class JDBCVariableHistoryNDao implements VariableHistoryNDao{
 		List<VariableHistoryN> allVariableHistory = new ArrayList<>();
 		String sql = "SELECT varHistoryId, varId, sampleTime, varValue, quality "
 				+ " FROM VariableHistoryN"
-				+ " WHERE varId = ? AND (sampleTime >= ?) AND (sampletime <= ?);";
+				+ " WHERE varId = ? AND (sampleTime >= ?) AND (sampletime <= ?) ORDER BY SampleTime DESC;";
 	    SqlRowSet results = jdbcTemplate.queryForRowSet(sql, varId, startTime, endTime);
 	    while(results.next()) {
 	    	VariableHistoryN newItem = createItemFromRow(results);
@@ -79,7 +79,7 @@ public class JDBCVariableHistoryNDao implements VariableHistoryNDao{
 		List<VariableHistoryN> allVariableHistory = new ArrayList<>();
 		String sql = "SELECT varHistoryId, varId, sampleTime, varValue, quality "
 				+ " FROM VariableHistoryN"
-				+ " WHERE (varId = (SELECT varId from variable where varName = ?)) AND (sampleTime >= ?) AND (sampletime <= ?);";
+				+ " WHERE (varId = (SELECT varId from variable where varName = ?)) AND (sampleTime >= ?) AND (sampletime <= ?) ORDER BY SampleTime DESC;";
 	    SqlRowSet results = jdbcTemplate.queryForRowSet(sql, varName, startTime, endTime);
 	    while(results.next()) {
 	    	VariableHistoryN newItem = createItemFromRow(results);
